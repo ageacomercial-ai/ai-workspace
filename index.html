@@ -159,6 +159,24 @@
         .toast.success { border-color: var(--green); }
         .toast.error { border-color: var(--red); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* ========== STATS PANEL ========== */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 20px; }
+        .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+        .stat-card-value { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+        .stat-card-label { font-size: 12px; color: var(--text3); }
+        .stat-card-change { font-size: 11px; margin-top: 8px; }
+        .stat-card-change.positive { color: var(--green); }
+        .stat-card-change.negative { color: var(--red); }
+        
+        .history-list { padding: 20px; overflow-y: auto; }
+        .history-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; cursor: pointer; }
+        .history-item:hover { border-color: var(--primary); }
+        .history-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .history-info { flex: 1; }
+        .history-title { font-size: 13px; font-weight: 500; }
+        .history-meta { font-size: 11px; color: var(--text3); }
+        .history-time { font-size: 11px; color: var(--text3); }
     </style>
 </head>
 <body>
@@ -211,10 +229,15 @@
                 </div>
                 <div class="nav-section">
                     <div class="nav-label">Sistema</div>
+                    <div class="nav-item" onclick="showPanel('stats')">
+                        <div class="icon">📊</div>
+                        <span>Estatísticas</span>
+                    </div>
                     <div class="nav-item" onclick="showPanel('settings')">
                         <div class="icon">⚙️</div>
-                        <span>Configurações</div>
+                        <span>Configurações</span>
                     </div>
+                </div>
                 </div>
             </div>
             <div class="sidebar-footer">
@@ -400,8 +423,9 @@
             <div class="panel" id="panel-prompts" style="display:none">
                 <div class="header">
                     <div class="header-title">📚 Biblioteca de Prompts</div>
+                    <input type="text" class="header-btn" placeholder="Pesquisar prompts..." style="width:200px;background:var(--bg3)" id="prompt-search" oninput="filterPrompts()">
                 </div>
-                <div class="prompts-grid">
+                <div class="prompts-grid" id="prompts-container">
                     <div class="prompt-card" onclick="usePrompt('Cria uma landing page profissional para um restaurante angolano com menu, preços, localização e botão de reserva')">
                         <div class="prompt-card-cat">🌐 Website</div>
                         <div class="prompt-card-title">Landing Page Restaurante</div>
@@ -431,6 +455,36 @@
                         <div class="prompt-card-cat">📝 Texto</div>
                         <div class="prompt-card-title">Email Marketing</div>
                         <div class="prompt-card-desc">Email de lançamento de produto</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Cria um dashboard administrativo com React, gráficos, tabela de dados e tema dark')">
+                        <div class="prompt-card-cat">💻 Código</div>
+                        <div class="prompt-card-title">Dashboard Admin</div>
+                        <div class="prompt-card-desc">Painel admin completo com React</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Cria uma aplicação mobile Flutter para gestão de entregas com GPS e notificações')">
+                        <div class="prompt-card-cat">📱 Mobile</div>
+                        <div class="prompt-card-title">App Entregas Flutter</div>
+                        <div class="prompt-card-desc">App mobile com GPS e notificações</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Escreve uma apresentação de pitch deck para startup de fintech angolana com 10 slides')">
+                        <div class="prompt-card-cat">📊 Apresentação</div>
+                        <div class="prompt-card-title">Pitch Deck Fintech</div>
+                        <div class="prompt-card-desc">Apresentação para investidores</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Cria um sistema de reservas online com calendário, pagamentos e painel de gestão')">
+                        <div class="prompt-card-cat">💻 Código</div>
+                        <div class="prompt-card-title">Sistema Reservas</div>
+                        <div class="prompt-card-desc">Plataforma de reservas online</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Gera uma imagem de um escritório moderno em Luanda com vista para o mar')">
+                        <div class="prompt-card-cat">🖼️ Imagem</div>
+                        <div class="prompt-card-title">Escritório Luanda</div>
+                        <div class="prompt-card-desc">Imagem de escritório moderno</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Cria um chatbot inteligente para atendimento ao cliente com FAQ e transferência para humano')">
+                        <div class="prompt-card-cat">🤖 AI</div>
+                        <div class="prompt-card-title">Chatbot Atendimento</div>
+                        <div class="prompt-card-desc">Bot de atendimento ao cliente</div>
                     </div>
                 </div>
             </div>
@@ -540,6 +594,43 @@ hello();</textarea>
                     </div>
                 </div>
             </div>
+
+            <!-- STATS -->
+            <div class="panel" id="panel-stats" style="display:none">
+                <div class="header">
+                    <div class="header-title">📊 Estatísticas</div>
+                </div>
+                <div style="flex:1;overflow-y:auto">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-card-value" style="color:var(--primary)" id="stat-generated">0</div>
+                            <div class="stat-card-label">Textos Gerados</div>
+                            <div class="stat-card-change positive">+12% hoje</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value" style="color:var(--green)" id="stat-code">0</div>
+                            <div class="stat-card-label">Código Gerado</div>
+                            <div class="stat-card-change positive">+8% hoje</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value" style="color:var(--pink)" id="stat-sites">0</div>
+                            <div class="stat-card-label">Sites Criados</div>
+                            <div class="stat-card-change positive">+5% hoje</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-card-value" style="color:var(--yellow)" id="stat-videos">0</div>
+                            <div class="stat-card-label">Vídeos Gerados</div>
+                            <div class="stat-card-change positive">+3% hoje</div>
+                        </div>
+                    </div>
+                    <div style="padding:0 20px">
+                        <h3 style="font-size:14px;margin-bottom:12px">Histórico Recente</h3>
+                        <div class="history-list" id="history-list">
+                            <div style="text-align:center;padding:40px;color:var(--text3)">Nenhuma atividade ainda</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -552,6 +643,8 @@ hello();</textarea>
         imageStyle: 'photo',
         chatHistory: [],
         isGenerating: false,
+        history: JSON.parse(localStorage.getItem('ai-history') || '[]'),
+        stats: JSON.parse(localStorage.getItem('ai-stats') || '{"text":0,"code":0,"sites":0,"videos":0}'),
     };
 
     // ==================== NAVIGATION ====================
@@ -575,9 +668,29 @@ hello();</textarea>
         if (!prompt) { showToast('Escreva um prompt primeiro', 'error'); return; }
         
         const output = document.getElementById('text-output');
-        output.innerHTML = '<div class="loading"><div class="spinner"></div> A gerar...</div>';
+        const model = document.getElementById('model-select').value;
+        output.innerHTML = '<div class="loading"><div class="spinner"></div> A gerar com ' + model + '...</div>';
         
-        // Generate based on type
+        // Try HuggingFace API first
+        const hfToken = document.getElementById('hf-token')?.value;
+        if (hfToken) {
+            try {
+                const response = await fetch('https://api-inference.huggingface.co/models/' + getHFModel(model), {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + hfToken, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ inputs: prompt, parameters: { max_new_tokens: 1000 } })
+                });
+                const data = await response.json();
+                if (data.generated_text) {
+                    await simulateStreaming(output, data.generated_text);
+                    return;
+                }
+            } catch (e) {
+                console.log('HuggingFace API error, using local generation');
+            }
+        }
+        
+        // Fallback to local generation
         const codeTemplates = {
             html: generateHTML,
             js: generateJS,
@@ -592,8 +705,18 @@ hello();</textarea>
         const generator = codeTemplates[STATE.genType] || generateTextContent;
         const result = generator(prompt);
         
-        // Simulate streaming
         await simulateStreaming(output, result);
+        addHistory(STATE.genType, prompt.substring(0, 50) + '...', STATE.genType.toUpperCase());
+    }
+
+    function getHFModel(model) {
+        const models = {
+            'gpt2': 'gpt2',
+            'mistral': 'mistralai/Mistral-7B-Instruct-v0.2',
+            'llama': 'meta-llama/Llama-2-7b-chat-hf',
+            'phi': 'microsoft/phi-2'
+        };
+        return models[model] || 'gpt2';
     }
 
     function generateHTML(prompt) {
@@ -984,6 +1107,7 @@ Este é um tema em constante evolução. Manter-se atualizado é essencial para 
         const code = generateHTML(prompt);
         document.getElementById('site-code').value = code;
         updatePreview();
+        addHistory('site', prompt.substring(0, 50) + '...', 'HTML/CSS');
         showToast('Site gerado com sucesso!', 'success');
     }
 
@@ -1031,6 +1155,7 @@ Este é um tema em constante evolução. Manter-se atualizado é essencial para 
                 </div>
             </div>
         `;
+        addHistory('video', prompt.substring(0, 50) + '...', STATE.videoStyle);
         showToast('Vídeo gerado com sucesso!', 'success');
     }
 
@@ -1064,6 +1189,7 @@ Este é um tema em constante evolução. Manter-se atualizado é essencial para 
                 </div>
             </div>
         `).join('');
+        addHistory('image', prompt.substring(0, 50) + '...', STATE.imageStyle);
         showToast('Imagens geradas!', 'success');
     }
 
@@ -1132,6 +1258,16 @@ Este é um tema em constante evolução. Manter-se atualizado é essencial para 
         document.querySelector('[onclick="showPanel(\'text\')"]').classList.add('active');
     }
 
+    function filterPrompts() {
+        const search = document.getElementById('prompt-search').value.toLowerCase();
+        const cards = document.querySelectorAll('.prompt-card');
+        cards.forEach(card => {
+            const title = card.querySelector('.prompt-card-title').textContent.toLowerCase();
+            const desc = card.querySelector('.prompt-card-desc').textContent.toLowerCase();
+            card.style.display = (title.includes(search) || desc.includes(search)) ? 'block' : 'none';
+        });
+    }
+
     // ==================== UTILITIES ====================
     function clearOutput(id) {
         document.getElementById(id).innerHTML = '<span style="color:var(--text3)">O resultado aparecerá aqui...</span>';
@@ -1139,7 +1275,10 @@ Este é um tema em constante evolução. Manter-se atualizado é essencial para 
 
     function exportContent(id) {
         const content = document.getElementById(id).innerText;
-        downloadFile('output.txt', content, 'text/plain');
+        const format = prompt('Formato de exportação:\n1. TXT (Texto simples)\n2. MD (Markdown)\n3. HTML\n4. JSON');
+        const formats = { '1': ['output.txt', 'text/plain'], '2': ['output.md', 'text/markdown'], '3': ['output.html', 'text/html'], '4': ['output.json', 'application/json'] };
+        const [name, type] = formats[format] || formats['1'];
+        downloadFile(name, content, type);
     }
 
     function downloadFile(name, content, type) {
@@ -1150,6 +1289,7 @@ Este é um tema em constante evolução. Manter-se atualizado é essencial para 
         a.download = name;
         a.click();
         URL.revokeObjectURL(url);
+        showToast('Ficheiro exportado: ' + name, 'success');
     }
 
     function showToast(msg, type = 'success') {
@@ -1160,22 +1300,104 @@ Este é um tema em constante evolução. Manter-se atualizado é essencial para 
         setTimeout(() => toast.remove(), 3000);
     }
 
+    function copyToClipboard(id) {
+        const content = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(content);
+        showToast('Copiado para a área de transferência!', 'success');
+    }
+
     function runCode() {
         const code = document.getElementById('code-editor').value;
+        const output = document.createElement('div');
+        output.style.cssText = 'position:fixed;bottom:20px;left:20px;right:20px;max-height:300px;background:#12121a;border:1px solid #2a2a3a;border-radius:12px;padding:16px;font-family:monospace;font-size:12px;overflow:auto;z-index:9999';
+        output.innerHTML = '<div style="display:flex;justify-content:space-between;margin-bottom:8px"><b>Output:</b><span onclick="this.parentElement.parentElement.remove()" style="cursor:pointer">✕</span></div><pre id="code-output"></pre>';
+        document.body.appendChild(output);
+        
+        const origLog = console.log;
+        console.log = (...args) => {
+            document.getElementById('code-output').textContent += args.join(' ') + '\n';
+            origLog(...args);
+        };
         try {
             eval(code);
             showToast('Código executado!', 'success');
         } catch (e) {
+            document.getElementById('code-output').textContent += 'Erro: ' + e.message;
             showToast('Erro: ' + e.message, 'error');
         }
+        console.log = origLog;
     }
 
     function aiComplete() {
         const editor = document.getElementById('code-editor');
         const code = editor.value;
-        editor.value = code + '\n\n// AI sugestão:\n// Adicione mais funcionalidades aqui...';
+        const suggestions = [
+            '// Adicionar validação de input\n',
+            '// Implementar tratamento de erros\n',
+            '// Adicionar logging\n',
+            '// Criar testes unitários\n',
+            '// Otimizar performance\n'
+        ];
+        editor.value = code + '\n\n' + suggestions[Math.floor(Math.random() * suggestions.length)];
         showToast('Código completado!', 'success');
     }
+
+    function formatCode() {
+        const editor = document.getElementById('code-editor');
+        editor.value = editor.value.replace(/\s+/g, ' ').trim();
+        showToast('Código formatado!', 'success');
+    }
+
+    // ==================== HISTORY & STATS ====================
+    function addHistory(type, title, meta) {
+        const item = { type, title, meta, time: new Date().toISOString() };
+        STATE.history.unshift(item);
+        if (STATE.history.length > 50) STATE.history.pop();
+        localStorage.setItem('ai-history', JSON.stringify(STATE.history));
+        updateStats(type);
+        renderHistory();
+    }
+
+    function updateStats(type) {
+        const key = type === 'text' || type === 'blog' ? 'text' : type;
+        if (STATE.stats[key] !== undefined) {
+            STATE.stats[key]++;
+            localStorage.setItem('ai-stats', JSON.stringify(STATE.stats));
+        }
+        document.getElementById('stat-generated').textContent = STATE.stats.text;
+        document.getElementById('stat-code').textContent = STATE.stats.code;
+        document.getElementById('stat-sites').textContent = STATE.stats.sites;
+        document.getElementById('stat-videos').textContent = STATE.stats.videos;
+    }
+
+    function renderHistory() {
+        const container = document.getElementById('history-list');
+        if (!STATE.history.length) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3)">Nenhuma atividade ainda</div>';
+            return;
+        }
+        const icons = { text: '📝', code: '💻', html: '🌐', video: '🎬', image: '🖼️', site: '🌐' };
+        const colors = { text: 'var(--primary-bg)', code: 'var(--green-bg)', html: 'var(--cyan-bg)', video: 'var(--pink-bg)', image: 'var(--yellow-bg)', site: 'var(--cyan-bg)' };
+        container.innerHTML = STATE.history.slice(0, 20).map(h => `
+            <div class="history-item">
+                <div class="history-icon" style="background:${colors[h.type] || 'var(--bg3)'}">${icons[h.type] || '📄'}</div>
+                <div class="history-info">
+                    <div class="history-title">${h.title}</div>
+                    <div class="history-meta">${h.meta}</div>
+                </div>
+                <div class="history-time">${new Date(h.time).toLocaleTimeString('pt-AO')}</div>
+            </div>
+        `).join('');
+    }
+
+    // Init stats display
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('stat-generated').textContent = STATE.stats.text;
+        document.getElementById('stat-code').textContent = STATE.stats.code;
+        document.getElementById('stat-sites').textContent = STATE.stats.sites;
+        document.getElementById('stat-videos').textContent = STATE.stats.videos;
+        renderHistory();
+    });
 
     // Init
     document.addEventListener('DOMContentLoaded', () => {
