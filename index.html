@@ -3,336 +3,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Workspace - Gerador Universal</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>AI Workspace v2</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; }
-        
-        .header { background: #12121a; padding: 16px 24px; border-bottom: 1px solid #2a2a3a; display: flex; align-items: center; gap: 16px; }
-        .header h1 { font-size: 20px; color: #6366f1; flex: 1; }
-        
+        .header { background: #12121a; padding: 16px 24px; border-bottom: 1px solid #2a2a3a; }
+        .header h1 { font-size: 20px; color: #6366f1; }
         .nav { background: #12121a; padding: 12px 24px; border-bottom: 1px solid #2a2a3a; display: flex; gap: 8px; flex-wrap: wrap; }
         .nav button { padding: 10px 16px; background: #1a1a25; border: 1px solid #2a2a3a; border-radius: 8px; color: #a0a0b8; cursor: pointer; font-size: 13px; }
         .nav button:hover { border-color: #6366f1; color: #6366f1; }
         .nav button.active { background: rgba(99,102,241,0.1); border-color: #6366f1; color: #6366f1; }
-        
         .container { max-width: 900px; margin: 0 auto; padding: 24px; }
-        
         .section { display: none; }
         .section.active { display: block; }
-        
         label { display: block; margin-bottom: 8px; color: #a0a0b8; font-size: 14px; }
-        
-        textarea { 
-            width: 100%; 
-            height: 180px; 
-            background: #1a1a25; 
-            border: 2px solid #3a3a4a; 
-            border-radius: 8px; 
-            padding: 16px; 
-            color: #fff; 
-            font-size: 15px; 
-            resize: vertical;
-            font-family: Arial, sans-serif;
-        }
+        textarea { width: 100%; height: 180px; background: #1a1a25; border: 2px solid #3a3a4a; border-radius: 8px; padding: 16px; color: #fff; font-size: 15px; resize: vertical; font-family: Arial, sans-serif; }
         textarea:focus { border-color: #6366f1; outline: none; }
         textarea::placeholder { color: #707088; }
-        
         .chips { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
         .chip { padding: 8px 14px; background: #1a1a25; border: 1px solid #2a2a3a; border-radius: 20px; color: #a0a0b8; cursor: pointer; font-size: 12px; }
         .chip:hover { border-color: #6366f1; color: #6366f1; }
         .chip.active { background: rgba(99,102,241,0.1); border-color: #6366f1; color: #6366f1; }
-        
-        .btn { 
-            padding: 12px 24px; 
-            background: #6366f1; 
-            color: #fff; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 15px; 
-            cursor: pointer; 
-            margin-right: 8px;
-        }
+        .btn { padding: 12px 24px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; margin-right: 8px; }
         .btn:hover { background: #818cf8; }
         .btn-outline { background: transparent; border: 1px solid #2a2a3a; color: #a0a0b8; }
         .btn-outline:hover { border-color: #6366f1; color: #6366f1; }
-        
-        .output { 
-            margin-top: 20px; 
-            padding: 20px; 
-            background: #12121a; 
-            border: 1px solid #2a2a3a; 
-            border-radius: 8px; 
-            min-height: 150px; 
-            white-space: pre-wrap; 
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        
+        .output { margin-top: 20px; padding: 20px; background: #12121a; border: 1px solid #2a2a3a; border-radius: 8px; min-height: 150px; white-space: pre-wrap; font-size: 14px; line-height: 1.6; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 16px; }
-        .card { background: #12121a; border: 1px solid #2a2a3a; border-radius: 8px; padding: 16px; cursor: pointer; }
-        .card:hover { border-color: #6366f1; }
-        .card h3 { font-size: 14px; margin-bottom: 4px; }
-        .card p { font-size: 12px; color: #707088; }
-        
         .split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        @media (max-width: 768px) { .split { grid-template-columns: 1fr; } }
-        
         .preview-frame { width: 100%; height: 400px; background: #fff; border: 1px solid #2a2a3a; border-radius: 8px; }
-        
         .chat-box { background: #12121a; border: 1px solid #2a2a3a; border-radius: 8px; padding: 16px; margin-top: 16px; max-height: 300px; overflow-y: auto; }
         .chat-msg { margin-bottom: 12px; }
         .chat-msg .name { font-size: 12px; color: #6366f1; margin-bottom: 4px; }
         .chat-msg .text { font-size: 14px; color: #a0a0b8; }
-        
         .row { display: flex; gap: 8px; margin-top: 16px; }
         .row input { flex: 1; padding: 12px; background: #1a1a25; border: 1px solid #2a2a3a; border-radius: 8px; color: #fff; font-size: 14px; }
         .row input:focus { border-color: #6366f1; outline: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>AI Workspace</h1>
-        <span style="color:#707088;font-size:12px">v1.0</span>
+    <div class="header"><h1>AI Workspace v2</h1></div>
+    <div class="nav" id="nav">
+        <button class="active" data-tab="text">Text & Code</button>
+        <button data-tab="site">Site Builder</button>
+        <button data-tab="video">Video</button>
+        <button data-tab="image">Images</button>
+        <button data-tab="chat">Chat</button>
+        <button data-tab="editor">Code Editor</button>
     </div>
-    
-    <div class="nav">
-        <button class="active" onclick="show('text',this)">Text & Code</button>
-        <button onclick="show('site',this)">Site Builder</button>
-        <button onclick="show('video',this)">Video</button>
-        <button onclick="show('image',this)">Images</button>
-        <button onclick="show('chat',this)">Chat</button>
-        <button onclick="show('editor',this)">Code Editor</button>
-    </div>
-
     <div class="container">
-        <!-- TEXT -->
         <div id="text" class="section active">
             <label>O que quer gerar:</label>
-            <textarea id="prompt" placeholder="Ex: Cria uma landing page para restaurante angolano..."></textarea>
-            
-            <div class="chips">
-                <div class="chip active" onclick="setType(this,'text')">Text</div>
-                <div class="chip" onclick="setType(this,'code')">Code</div>
-                <div class="chip" onclick="setType(this,'html')">HTML/CSS</div>
-                <div class="chip" onclick="setType(this,'js')">JavaScript</div>
-                <div class="chip" onclick="setType(this,'python')">Python</div>
-                <div class="chip" onclick="setType(this,'sql')">SQL</div>
-                <div class="chip" onclick="setType(this,'blog')">Blog</div>
+            <textarea id="prompt" placeholder="Escreva aqui..."></textarea>
+            <div class="chips" id="type-chips">
+                <div class="chip active" data-type="text">Text</div>
+                <div class="chip" data-type="code">Code</div>
+                <div class="chip" data-type="html">HTML/CSS</div>
+                <div class="chip" data-type="js">JavaScript</div>
+                <div class="chip" data-type="python">Python</div>
+                <div class="chip" data-type="sql">SQL</div>
+                <div class="chip" data-type="blog">Blog</div>
             </div>
-            
-            <button class="btn" onclick="gerar()">Gerar</button>
-            <button class="btn btn-outline" onclick="limpar()">Limpar</button>
-            <button class="btn btn-outline" onclick="copiar()">Copiar</button>
-            
+            <button class="btn" id="btn-gerar">Gerar</button>
+            <button class="btn btn-outline" id="btn-limpar">Limpar</button>
+            <button class="btn btn-outline" id="btn-copiar">Copiar</button>
             <div class="output" id="output">Resultado aparece aqui...</div>
         </div>
-
-        <!-- SITE -->
         <div id="site" class="section">
             <label>Descreva o site:</label>
-            <textarea id="site-prompt" placeholder="Ex: Landing page para barbearia com menu e preços..." style="height:100px"></textarea>
-            <button class="btn" onclick="gerarSite()">Gerar Site</button>
-            <button class="btn btn-outline" onclick="exportSite()">Exportar HTML</button>
-            
+            <textarea id="site-prompt" placeholder="Ex: Landing page para barbearia..." style="height:100px"></textarea>
+            <button class="btn" id="btn-gerar-site">Gerar Site</button>
+            <button class="btn btn-outline" id="btn-export-site">Exportar HTML</button>
             <div class="split" style="margin-top:16px">
-                <div>
-                    <label>Código:</label>
-                    <textarea id="site-code" style="height:400px;font-family:monospace;font-size:12px"></textarea>
-                </div>
-                <div>
-                    <label>Preview:</label>
-                    <iframe id="preview" class="preview-frame"></iframe>
-                </div>
+                <div><label>Código:</label><textarea id="site-code" style="height:400px;font-family:monospace;font-size:12px"></textarea></div>
+                <div><label>Preview:</label><iframe id="preview" class="preview-frame"></iframe></div>
             </div>
         </div>
-
-        <!-- VIDEO -->
         <div id="video" class="section">
             <label>Descreva o vídeo:</label>
-            <textarea id="video-prompt" placeholder="Ex: Carro a conduzir em Luanda ao pôr do sol..." style="height:120px"></textarea>
-            
-            <div class="chips">
-                <div class="chip active">Cinematográfico</div>
-                <div class="chip">Anime</div>
-                <div class="chip">3D</div>
-                <div class="chip">Realista</div>
-            </div>
-            
-            <button class="btn" onclick="gerarVideo()">Gerar Vídeo</button>
-            
-            <div class="output" style="text-align:center;padding:60px">
-                <div style="font-size:64px;margin-bottom:16px">🎬</div>
-                <div>Vídeo será gerado aqui</div>
-                <div style="color:#707088;font-size:12px;margin-top:8px">Modelos: Wan2.1, CogVideoX</div>
-            </div>
+            <textarea id="video-prompt" placeholder="Ex: Carro em Luanda ao pôr do sol..." style="height:120px"></textarea>
+            <button class="btn" id="btn-gerar-video">Gerar Vídeo</button>
+            <div class="output" style="text-align:center;padding:60px"><div style="font-size:64px;margin-bottom:16px">🎬</div><div>Vídeo será gerado aqui</div></div>
         </div>
-
-        <!-- IMAGE -->
         <div id="image" class="section">
             <label>Descreva a imagem:</label>
-            <textarea id="image-prompt" placeholder="Ex: Escritório moderno em Luanda com vista para o mar..." style="height:100px"></textarea>
-            
-            <div class="chips">
-                <div class="chip active">Fotografia</div>
-                <div class="chip">Arte</div>
-                <div class="chip">3D</div>
-                <div class="chip">Anime</div>
-                <div class="chip">Logo</div>
-            </div>
-            
-            <button class="btn" onclick="gerarImg()">Gerar Imagem</button>
-            
-            <div class="grid">
-                <div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div>
-                <div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div>
-                <div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div>
-                <div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div>
-            </div>
+            <textarea id="image-prompt" placeholder="Ex: Escritório moderno em Luanda..." style="height:100px"></textarea>
+            <button class="btn" id="btn-gerar-img">Gerar Imagem</button>
+            <div class="grid"><div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div><div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div><div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div><div style="background:#12121a;border:1px solid #2a2a3a;border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center">🖼️</div></div>
         </div>
-
-        <!-- CHAT -->
         <div id="chat" class="section">
-            <div class="chat-box" id="chat-box">
-                <div class="chat-msg">
-                    <div class="name">AI</div>
-                    <div class="text">Olá! Posso ajudar com código, texto, sites e vídeos. Como posso ajudar?</div>
-                </div>
-            </div>
-            <div class="row">
-                <input type="text" id="chat-input" placeholder="Escreva a sua mensagem..." onkeypress="if(event.key==='Enter')sendChat()">
-                <button class="btn" onclick="sendChat()">Enviar</button>
-            </div>
+            <div class="chat-box" id="chat-box"><div class="chat-msg"><div class="name">AI</div><div class="text">Olá! Como posso ajudar?</div></div></div>
+            <div class="row"><input type="text" id="chat-input" placeholder="Escreva a sua mensagem..."><button class="btn" id="btn-send-chat">Enviar</button></div>
         </div>
-
-        <!-- EDITOR -->
         <div id="editor" class="section">
             <label>Editor de Código:</label>
             <textarea id="code-editor" style="height:400px;font-family:monospace;font-size:13px;background:#0a0a0f">// Escreva o código aqui...
-
-function hello() {
-    console.log('Olá Mundo!');
-}
-
+function hello() { console.log('Olá Mundo!'); }
 hello();</textarea>
-            <button class="btn" onclick="executar()">Executar</button>
-            <button class="btn btn-outline" onclick="aiComplete()">AI Complete</button>
+            <button class="btn" id="btn-executar">Executar</button>
+            <button class="btn btn-outline" id="btn-ai-complete">AI Complete</button>
             <div class="output" id="code-output" style="display:none"></div>
         </div>
     </div>
-
     <script>
-    var type = 'text';
-    
-    function show(id, btn) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-    }
-    
-    function setType(el, t) {
-        document.querySelectorAll('.chips .chip').forEach(c => c.classList.remove('active'));
-        el.classList.add('active');
-        type = t;
-    }
-    
-    window.onerror = function(m) { var o=document.getElementById('output'); if(o) o.innerText='ERRO JS: '+m; };
-    function gerar() {
-        try {
-        var prompt = document.getElementById('prompt').value;
-        if (!prompt || !prompt.trim()) { document.getElementById('output').innerText='⚠️ Escreva algo na caixa acima primeiro!'; return; }
+    (function() {
+        var currentType = 'text';
         
-        var templates = {
-            text: '# ' + prompt + '\n\nResposta detalhada sobre o tópico solicitado...\n\n## Pontos principais\n\n1. Análise completa\n2. Exemplos práticos\n3. Recomendações',
-            code: '// ' + prompt + '\n\nfunction solution() {\n    // Lógica aqui\n    return result;\n}\n\nmodule.exports = { solution };',
-            html: '<!DOCTYPE html>\n<html>\n<head>\n    <title>' + prompt + '</title>\n    <style>\n        body { font-family: Arial; background: #0a0a0f; color: #fff; }\n        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; }\n        h1 { font-size: 3rem; color: #6366f1; }\n    </style>\n</head>\n<body>\n    <div class="hero">\n        <h1>' + prompt + '</h1>\n    </div>\n</body>\n</html>',
-            js: '// ' + prompt + '\n\nclass App {\n    constructor() {\n        this.init();\n    }\n    \n    init() {\n        console.log("App iniciada");\n    }\n}\n\nnew App();',
-            python: '# ' + prompt + '\n\nfrom fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get("/")\ndef root():\n    return {"message": "Olá"}',
-            sql: '-- ' + prompt + '\n\nCREATE TABLE items (\n    id SERIAL PRIMARY KEY,\n    name VARCHAR(100) NOT NULL,\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);',
-            blog: '# ' + prompt + '\n\n## Introdução\n\nEste artigo explora...\n\n## Conteúdo\n\nDesenvolvimento do tema...\n\n## Conclusão\n\nResumo dos pontos principais.'
-        };
+        // Tab navigation
+        document.getElementById('nav').addEventListener('click', function(e) {
+            var btn = e.target.closest('button');
+            if (!btn) return;
+            var tab = btn.getAttribute('data-tab');
+            if (!tab) return;
+            document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+            document.getElementById(tab).classList.add('active');
+            document.querySelectorAll('#nav button').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+        });
         
-        var result = templates[type] || templates.text;
-        document.getElementById('output').innerText = result;
-        } catch(e){ document.getElementById('output').innerText='ERRO: '+e.message; }
-    }
-    
-    function limpar() {
-        document.getElementById('output').innerText = 'Resultado aparece aqui...';
-        document.getElementById('prompt').value = '';
-    }
-    
-    function copiar() {
-        var text = document.getElementById('output').innerText;
-        navigator.clipboard.writeText(text);
-        alert('Copiado!');
-    }
-    
-    function gerarSite() {
-        var prompt = document.getElementById('site-prompt').value;
-        if (!prompt) { alert('Descreva o site!'); return; }
+        // Type chips
+        document.getElementById('type-chips').addEventListener('click', function(e) {
+            var chip = e.target.closest('.chip');
+            if (!chip) return;
+            currentType = chip.getAttribute('data-type') || 'text';
+            document.querySelectorAll('#type-chips .chip').forEach(function(c) { c.classList.remove('active'); });
+            chip.classList.add('active');
+        });
         
-        var html = '<!DOCTYPE html>\n<html lang="pt">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>' + prompt + '</title>\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { font-family: Arial, sans-serif; background: #0a0a0f; color: #fff; }\n        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; background: linear-gradient(135deg, #1a1a2e, #16213e); }\n        h1 { font-size: 3rem; margin-bottom: 20px; color: #6366f1; }\n        p { font-size: 1.2rem; color: #a0a0b8; margin-bottom: 30px; }\n        .btn { padding: 14px 32px; background: #6366f1; color: #fff; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }\n        .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding: 80px 20px; max-width: 1000px; margin: 0 auto; }\n        .feature { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 32px; text-align: center; }\n        .feature h3 { margin-bottom: 8px; }\n        .feature p { color: #a0a0b8; font-size: 0.9rem; }\n    </style>\n</head>\n<body>\n    <section class="hero">\n        <div>\n            <h1>' + prompt + '</h1>\n            <p>Site profissional gerado por AI Workspace</p>\n            <button class="btn">Saber Mais</button>\n        </div>\n    </section>\n    <section class="features">\n        <div class="feature"><h3>⚡ Rápido</h3><p>Performance optimizada</p></div>\n        <div class="feature"><h3>🎨 Design</h3><p>Interface moderna</p></div>\n        <div class="feature"><h3>📱 Mobile</h3><p>Totalmente responsivo</p></div>\n    </section>\n</body>\n</html>';
+        // Generate
+        document.getElementById('btn-gerar').addEventListener('click', function() {
+            var p = document.getElementById('prompt').value;
+            if (!p || !p.trim()) {
+                document.getElementById('output').innerText = 'Escreva algo na caixa acima!';
+                return;
+            }
+            var t = {
+                text: '# ' + p + '\n\nResposta detalhada...\n\n## Pontos principais\n\n1. Analise\n2. Exemplos\n3. Recomendacoes',
+                code: '// ' + p + '\nfunction solution() {\n    // Logica aqui\n    return result;\n}',
+                html: '<!DOCTYPE html>\n<html>\n<head><title>' + p + '</title></head>\n<body><h1>' + p + '</h1></body>\n</html>',
+                js: '// ' + p + '\nclass App {\n    constructor() { this.init(); }\n    init() { console.log("OK"); }\n}\nnew App();',
+                python: '# ' + p + '\nfrom fastapi import FastAPI\napp = FastAPI()\n@app.get("/")\ndef root(): return {"msg": "Ola"}',
+                sql: '-- ' + p + '\nCREATE TABLE items (\n    id SERIAL PRIMARY KEY,\n    name VARCHAR(100)\n);',
+                blog: '# ' + p + '\n\n## Introducao\n\nArtigo sobre...\n\n## Conteudo\n\nDetalhes...\n\n## Conclusao\n\nResumo.'
+            };
+            document.getElementById('output').innerText = t[currentType] || t.text;
+        });
         
-        document.getElementById('site-code').value = html;
-        document.getElementById('preview').srcdoc = html;
-    }
-    
-    function exportSite() {
-        var code = document.getElementById('site-code').value;
-        var blob = new Blob([code], {type: 'text/html'});
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'site.html';
-        a.click();
-    }
-    
-    function gerarVideo() {
-        alert('A gerar vídeo...\n\nModelo: Wan2.1\nEstilo: Cinematográfico\n\nTempo estimado: 30-60 segundos');
-    }
-    
-    function gerarImg() {
-        alert('A gerar imagens...\n\n4 variantes serão criadas');
-    }
-    
-    function sendChat() {
-        try {
-        var input = document.getElementById('chat-input');
-        var msg = input.value.trim();
-        if (!msg || !msg.trim()) { return; }
+        // Limpar
+        document.getElementById('btn-limpar').addEventListener('click', function() {
+            document.getElementById('output').innerText = 'Resultado aparece aqui...';
+            document.getElementById('prompt').value = '';
+        });
         
-        var box = document.getElementById('chat-box');
-        box.innerHTML += '<div class="chat-msg"><div class="name">Você</div><div class="text">' + msg + '</div></div>';
-        input.value = '';
+        // Copiar
+        document.getElementById('btn-copiar').addEventListener('click', function() {
+            var text = document.getElementById('output').innerText;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() { alert('Copiado!'); });
+            } else {
+                alert('Copie manualmente: ' + text.substring(0, 50) + '...');
+            }
+        });
         
-        setTimeout(function() {
-            var resp = 'Posso ajudar! Use os painéis acima para gerar texto, código, sites ou vídeos.';
-            if (msg.toLowerCase().includes('código')) resp = 'Use o painel "Text & Code" e selecione "Code" para gerar código.';
-            if (msg.toLowerCase().includes('site')) resp = 'Use o painel "Site Builder" para criar sites completos.';
-            if (msg.toLowerCase().includes('vídeo')) resp = 'Use o painel "Video" para gerar vídeos com IA.';
-            box.innerHTML += '<div class="chat-msg"><div class="name">AI</div><div class="text">' + resp + '</div></div>';
-            box.scrollTop = box.scrollHeight;
-        }, 500);
-        } catch(e){ alert('Erro chat: '+e.message); }
-    }
-    
-    function executar() {
-        var code = document.getElementById('code-editor').value;
-        var out = document.getElementById('code-output');
-        out.style.display = 'block';
-        try {
-            eval(code);
-            out.innerText = 'Código executado com sucesso!';
-        } catch(e) {
-            out.innerText = 'Erro: ' + e.message;
+        // Site Builder
+        document.getElementById('btn-gerar-site').addEventListener('click', function() {
+            var p = document.getElementById('site-prompt').value;
+            if (!p || !p.trim()) { alert('Descreva o site!'); return; }
+            var h = '<!DOCTYPE html>\n<html lang="pt">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>' + p + '</title>\n<style>\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { font-family: Arial; background: #0a0a0f; color: #fff; }\n.hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(135deg, #1a1a2e, #16213e); }\nh1 { font-size: 3rem; color: #6366f1; margin-bottom: 20px; }\np { color: #a0a0b8; margin-bottom: 30px; }\n.btn { padding: 14px 32px; background: #6366f1; color: #fff; border: none; border-radius: 8px; cursor: pointer; }\n</style>\n</head>\n<body>\n<section class="hero"><div><h1>' + p + '</h1><p>Site gerado por AI Workspace</p><button class="btn">Saber Mais</button></div></section>\n</body>\n</html>';
+            document.getElementById('site-code').value = h;
+            document.getElementById('preview').srcdoc = h;
+        });
+        
+        document.getElementById('btn-export-site').addEventListener('click', function() {
+            var code = document.getElementById('site-code').value;
+            var blob = new Blob([code], {type: 'text/html'});
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'site.html';
+            a.click();
+        });
+        
+        // Video
+        document.getElementById('btn-gerar-video').addEventListener('click', function() {
+            alert('A gerar video...\nModelo: Wan2.1\nTempo: 30-60s');
+        });
+        
+        // Image
+        document.getElementById('btn-gerar-img').addEventListener('click', function() {
+            alert('A gerar imagens...\n4 variantes');
+        });
+        
+        // Chat
+        function sendChat() {
+            var input = document.getElementById('chat-input');
+            var msg = input.value.trim();
+            if (!msg) return;
+            var box = document.getElementById('chat-box');
+            box.innerHTML += '<div class="chat-msg"><div class="name">Voce</div><div class="text">' + msg + '</div></div>';
+            input.value = '';
+            setTimeout(function() {
+                var r = 'Posso ajudar! Use os paineis acima.';
+                if (msg.toLowerCase().indexOf('codigo') !== -1) r = 'Use "Text & Code" > "Code".';
+                if (msg.toLowerCase().indexOf('site') !== -1) r = 'Use "Site Builder".';
+                if (msg.toLowerCase().indexOf('video') !== -1) r = 'Use "Video".';
+                box.innerHTML += '<div class="chat-msg"><div class="name">AI</div><div class="text">' + r + '</div></div>';
+                box.scrollTop = box.scrollHeight;
+            }, 500);
         }
-    }
-    
-    function aiComplete() {
-        var ed = document.getElementById('code-editor');
-        ed.value += '\n\n// AI sugestão:\n// Adicionar mais funcionalidades...';
-    }
+        document.getElementById('btn-send-chat').addEventListener('click', sendChat);
+        document.getElementById('chat-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChat(); });
+        
+        // Editor
+        document.getElementById('btn-executar').addEventListener('click', function() {
+            var code = document.getElementById('code-editor').value;
+            var out = document.getElementById('code-output');
+            out.style.display = 'block';
+            try { eval(code); out.innerText = 'OK!'; } catch(e) { out.innerText = 'Erro: ' + e.message; }
+        });
+        document.getElementById('btn-ai-complete').addEventListener('click', function() {
+            document.getElementById('code-editor').value += '\n\n// AI sugestao...';
+        });
+    })();
     </script>
 </body>
 </html>
