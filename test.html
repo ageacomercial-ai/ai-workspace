@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workspace</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #0a0a0f; color: #fff; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #6366f1; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #a0a0b8; }
+        textarea { 
+            width: 100%; 
+            height: 200px; 
+            background: #1a1a25; 
+            border: 2px solid #6366f1; 
+            border-radius: 8px; 
+            padding: 16px; 
+            color: #fff; 
+            font-size: 16px; 
+            resize: vertical;
+        }
+        button { 
+            margin-top: 16px; 
+            padding: 12px 24px; 
+            background: #6366f1; 
+            color: #fff; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #818cf8; }
+        #output { 
+            margin-top: 20px; 
+            padding: 16px; 
+            background: #12121a; 
+            border: 1px solid #2a2a3a; 
+            border-radius: 8px; 
+            min-height: 100px; 
+            white-space: pre-wrap; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Workspace - Gerador</h1>
+        
+        <label for="prompt">Escreva o que quer gerar:</label>
+        <textarea id="prompt" placeholder="Ex: Cria um site para restaurante..."></textarea>
+        
+        <button onclick="gerar()">Gerar</button>
+        
+        <div id="output">Resultado aparece aqui...</div>
+    </div>
+    
+    <script>
+        function gerar() {
+            var texto = document.getElementById('prompt').value;
+            if (!texto) {
+                alert('Escreva algo primeiro!');
+                return;
+            }
+            document.getElementById('output').innerHTML = '<b>A gerar:</b>\n\n' + texto + '\n\n---\nResultado simulado...';
+        }
+    </script>
+</body>
+</html>
