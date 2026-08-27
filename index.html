@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Workspace - Gerador Universal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f; --bg2: #12121a; --bg3: #1a1a25; --bg4: #222230;
+            --border: #2a2a3a; --border2: #3a3a4a;
+            --text: #e8e8f0; --text2: #a0a0b8; --text3: #707088;
+            --primary: #6366f1; --primary2: #818cf8; --primary-bg: rgba(99,102,241,0.1);
+            --green: #22c55e; --green-bg: rgba(34,197,94,0.1);
+            --red: #ef4444; --red-bg: rgba(239,68,68,0.1);
+            --yellow: #eab308; --yellow-bg: rgba(234,179,8,0.1);
+            --cyan: #06b6d4; --cyan-bg: rgba(6,182,212,0.1);
+            --pink: #ec4899; --pink-bg: rgba(236,72,153,0.1);
+            --radius: 12px; --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        
+        /* ========== LAYOUT ========== */
+        .app { display: flex; height: 100vh; }
+        .sidebar { width: 260px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+        .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* ========== SIDEBAR ========== */
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--pink)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .logo-text { font-size: 18px; font-weight: 700; }
+        .logo-sub { font-size: 11px; color: var(--text3); }
+        
+        .sidebar-nav { flex: 1; padding: 12px; overflow-y: auto; }
+        .nav-section { margin-bottom: 20px; }
+        .nav-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; padding: 8px 12px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; color: var(--text2); }
+        .nav-item:hover { background: var(--bg3); color: var(--text); }
+        .nav-item.active { background: var(--primary-bg); color: var(--primary2); }
+        .nav-item .icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .nav-item.active .icon { background: var(--primary-bg); }
+        
+        .sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
+        .api-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text3); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+        
+        /* ========== HEADER ========== */
+        .header { display: flex; align-items: center; padding: 12px 20px; background: var(--bg2); border-bottom: 1px solid var(--border); gap: 12px; }
+        .header-title { font-size: 16px; font-weight: 600; flex: 1; }
+        .header-btn { padding: 8px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg3); color: var(--text); font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .header-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .header-btn.primary { background: var(--primary); border-color: var(--primary); color: white; }
+        .header-btn.primary:hover { background: var(--primary2); }
+        
+        /* ========== CONTENT ========== */
+        .content { flex: 1; overflow: hidden; display: flex; }
+        
+        /* ========== TEXT GENERATOR ========== */
+        .gen-panel { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 16px; overflow-y: auto; }
+        .gen-input-group { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+        .gen-label { font-size: 12px; color: var(--text3); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .gen-textarea { width: 100%; min-height: 120px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; resize: vertical; outline: none; }
+        .gen-textarea:focus { border-color: var(--primary); }
+        .gen-textarea::placeholder { color: var(--text3); }
+        
+        .gen-options { display: flex; gap: 8px; flex-wrap: wrap; }
+        .gen-chip { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .gen-chip:hover { border-color: var(--primary); color: var(--primary); }
+        .gen-chip.active { background: var(--primary-bg); border-color: var(--primary); color: var(--primary); }
+        
+        .gen-output { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; min-height: 200px; }
+        .gen-output-content { white-space: pre-wrap; font-size: 14px; line-height: 1.7; }
+        .gen-output-content code { font-family: 'JetBrains Mono', monospace; background: var(--bg3); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+        
+        .gen-actions { display: flex; gap: 8px; }
+        
+        /* ========== CODE EDITOR ========== */
+        .code-panel { flex: 1; display: flex; flex-direction: column; }
+        .code-header { display: flex; align-items: center; padding: 8px 16px; background: var(--bg2); border-bottom: 1px solid var(--border); gap: 8px; }
+        .code-tab { padding: 8px 16px; font-size: 12px; color: var(--text3); cursor: pointer; border-bottom: 2px solid transparent; }
+        .code-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .code-editor { flex: 1; background: var(--bg); padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; overflow: auto; }
+        .code-editor textarea { width: 100%; height: 100%; background: transparent; border: none; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6; resize: none; outline: none; }
+        
+        /* ========== SITE BUILDER ========== */
+        .site-panel { flex: 1; display: flex; flex-direction: column; }
+        .site-split { flex: 1; display: flex; overflow: hidden; }
+        .site-editor { flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        .site-preview { flex: 1; display: flex; flex-direction: column; }
+        .preview-frame { flex: 1; background: white; border: none; }
+        
+        /* ========== VIDEO GENERATOR ========== */
+        .video-panel { flex: 1; display: flex; flex-direction: column; padding: 20px; gap: 16px; }
+        .video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .video-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: all 0.2s; }
+        .video-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .video-card.selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-bg); }
+        .video-card-thumb { height: 120px; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 32px; }
+        .video-card-info { padding: 12px; }
+        .video-card-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+        .video-card-desc { font-size: 11px; color: var(--text3); }
+        
+        .video-preview { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .video-placeholder { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
+        
+        /* ========== CHAT ========== */
+        .chat-panel { flex: 1; display: flex; flex-direction: column; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; }
+        .chat-message { display: flex; gap: 12px; margin-bottom: 20px; }
+        .chat-avatar { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .chat-avatar.user { background: var(--primary-bg); }
+        .chat-avatar.ai { background: var(--pink-bg); }
+        .chat-content { flex: 1; }
+        .chat-name { font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+        .chat-text { font-size: 14px; line-height: 1.6; color: var(--text2); }
+        .chat-input-area { padding: 16px 20px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; gap: 12px; }
+        .chat-input { flex: 1; padding: 12px 16px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: inherit; font-size: 14px; outline: none; }
+        .chat-input:focus { border-color: var(--primary); }
+        .chat-send { padding: 12px 20px; background: var(--primary); border: none; border-radius: var(--radius-sm); color: white; font-weight: 600; cursor: pointer; font-family: inherit; }
+        
+        /* ========== PROMPTS LIBRARY ========== */
+        .prompts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 20px; overflow-y: auto; }
+        .prompt-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all 0.2s; }
+        .prompt-card:hover { border-color: var(--primary); }
+        .prompt-card-cat { font-size: 10px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .prompt-card-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .prompt-card-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+        
+        /* ========== SETTINGS ========== */
+        .settings-panel { flex: 1; padding: 20px; overflow-y: auto; }
+        .settings-section { margin-bottom: 24px; }
+        .settings-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; }
+        .settings-row-label { font-size: 13px; }
+        .settings-row-desc { font-size: 11px; color: var(--text3); margin-top: 2px; }
+        .settings-input { padding: 8px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; font-size: 13px; width: 250px; outline: none; }
+        .settings-input:focus { border-color: var(--primary); }
+        .settings-toggle { width: 44px; height: 24px; background: var(--bg4); border-radius: 12px; position: relative; cursor: pointer; transition: background 0.2s; }
+        .settings-toggle.on { background: var(--primary); }
+        .settings-toggle::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: transform 0.2s; }
+        .settings-toggle.on::after { transform: translateX(20px); }
+        
+        /* ========== LOADING ========== */
+        .loading { display: flex; align-items: center; gap: 8px; padding: 12px; color: var(--text3); font-size: 13px; }
+        .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* ========== SCROLLBAR ========== */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+        
+        /* ========== TOAST ========== */
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 20px; font-size: 13px; z-index: 9999; animation: slideUp 0.3s ease; }
+        .toast.success { border-color: var(--green); }
+        .toast.error { border-color: var(--red); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">⚡</div>
+                    <div>
+                        <div class="logo-text">AI Workspace</div>
+                        <div class="logo-sub">v1.0 - Open Source</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-label">Geradores</div>
+                    <div class="nav-item active" onclick="showPanel('text')">
+                        <div class="icon">📝</div>
+                        <span>Texto & Código</span>
+                    </div>
+                    <div class="nav-item" onclick="showPanel('site')">
+                        <div class="icon">🌐</div>
+                        <span>Criador de Sites</span>
+                    </div>
+                    <div class="nav-item" onclick="showPanel('video')">
+                        <div class="icon">🎬</div>
+                        <span>Gerador de Vídeo</span>
+                    </div>
+                    <div class="nav-item" onclick="showPanel('image')">
+                        <div class="icon">🖼️</div>
+                        <span>Gerador de Imagens</span>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-label">Ferramentas</div>
+                    <div class="nav-item" onclick="showPanel('chat')">
+                        <div class="icon">💬</div>
+                        <span>Chat IA</span>
+                    </div>
+                    <div class="nav-item" onclick="showPanel('prompts')">
+                        <div class="icon">📚</div>
+                        <span>Biblioteca Prompts</span>
+                    </div>
+                    <div class="nav-item" onclick="showPanel('editor')">
+                        <div class="icon">✏️</div>
+                        <span>Editor Código</span>
+                    </div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-label">Sistema</div>
+                    <div class="nav-item" onclick="showPanel('settings')">
+                        <div class="icon">⚙️</div>
+                        <span>Configurações</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <div class="api-status">
+                    <div class="status-dot"></div>
+                    <span>APIs Conectadas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN -->
+        <div class="main">
+            <!-- TEXT GENERATOR -->
+            <div class="panel" id="panel-text">
+                <div class="header">
+                    <div class="header-title">📝 Gerador de Texto & Código</div>
+                    <select id="model-select" class="header-btn" style="background:var(--bg3)">
+                        <option value="gpt2">GPT-2 (Grátis)</option>
+                        <option value="mistral">Mistral 7B</option>
+                        <option value="llama">LLaMA 3</option>
+                        <option value="phi">Phi-3</option>
+                    </select>
+                    <button class="header-btn" onclick="clearOutput('text-output')">Limpar</button>
+                    <button class="header-btn" onclick="exportContent('text-output')">Exportar</button>
+                    <button class="header-btn primary" onclick="generateText()">⚡ Gerar</button>
+                </div>
+                <div class="gen-panel">
+                    <div class="gen-input-group">
+                        <div class="gen-label">Prompt / Instrução</div>
+                        <textarea class="gen-textarea" id="text-prompt" placeholder="Ex: Cria uma landing page para um restaurante angolano com design moderno..."></textarea>
+                        <div class="gen-options" style="margin-top:12px">
+                            <div class="gen-chip active" onclick="setGenType(this,'text')">📝 Texto</div>
+                            <div class="gen-chip" onclick="setGenType(this,'code')">💻 Código</div>
+                            <div class="gen-chip" onclick="setGenType(this,'html')">🌐 HTML/CSS</div>
+                            <div class="gen-chip" onclick="setGenType(this,'js')">⚡ JavaScript</div>
+                            <div class="gen-chip" onclick="setGenType(this,'python')">🐍 Python</div>
+                            <div class="gen-chip" onclick="setGenType(this,'sql')">🗄️ SQL</div>
+                            <div class="gen-chip" onclick="setGenType(this,'react')">⚛️ React</div>
+                            <div class="gen-chip" onclick="setGenType(this,'blog')">📰 Blog Post</div>
+                        </div>
+                    </div>
+                    <div class="gen-output">
+                        <div class="gen-output-content" id="text-output">
+                            <span style="color:var(--text3)">O resultado aparecerá aqui...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SITE BUILDER -->
+            <div class="panel" id="panel-site" style="display:none">
+                <div class="header">
+                    <div class="header-title">🌐 Criador de Sites</div>
+                    <button class="header-btn" onclick="generateSite()">⚡ Gerar Site</button>
+                    <button class="header-btn" onclick="updatePreview()">🔄 Atualizar Preview</button>
+                    <button class="header-btn primary" onclick="exportSite()">📥 Exportar HTML</button>
+                </div>
+                <div class="site-panel">
+                    <div style="padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border)">
+                        <textarea class="gen-textarea" id="site-prompt" style="min-height:60px;max-height:100px" placeholder="Descreva o site que quer criar... (ex: Landing page para barbearia com menu, preços e contacto)"></textarea>
+                    </div>
+                    <div class="site-split">
+                        <div class="site-editor">
+                            <div class="code-header">
+                                <div class="code-tab active">index.html</div>
+                                <div class="code-tab">style.css</div>
+                                <div class="code-tab">script.js</div>
+                            </div>
+                            <div style="flex:1;background:var(--bg);padding:0">
+                                <textarea id="site-code" style="width:100%;height:100%;background:var(--bg);border:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px;resize:none;outline:none" placeholder="<-- Código HTML gerado aqui --"></textarea>
+                            </div>
+                        </div>
+                        <div class="site-preview">
+                            <div class="code-header">
+                                <span style="font-size:12px;color:var(--text3)">Preview ao Vivo</span>
+                            </div>
+                            <iframe id="preview-frame" class="preview-frame" sandbox="allow-scripts"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIDEO GENERATOR -->
+            <div class="panel" id="panel-video" style="display:none">
+                <div class="header">
+                    <div class="header-title">🎬 Gerador de Vídeo IA</div>
+                    <button class="header-btn primary" onclick="generateVideo()">⚡ Gerar Vídeo</button>
+                </div>
+                <div class="video-panel">
+                    <div class="gen-input-group">
+                        <div class="gen-label">Descrição do Vídeo</div>
+                        <textarea class="gen-textarea" id="video-prompt" placeholder="Descreva a cena desejada... (ex: Um carro a conduzir pelas ruas de Luanda ao pôr do sol, estilo cinematográfico)"></textarea>
+                        <div class="gen-options" style="margin-top:12px">
+                            <div class="gen-chip active" onclick="setVideoStyle(this,'cinematic')">🎬 Cinematográfico</div>
+                            <div class="gen-chip" onclick="setVideoStyle(this,'anime')">🎌 Anime</div>
+                            <div class="gen-chip" onclick="setVideoStyle(this,'3d')">🎨 3D Render</div>
+                            <div class="gen-chip" onclick="setVideoStyle(this,'realistic')">📷 Realista</div>
+                            <div class="gen-chip" onclick="setVideoStyle(this,'cartoon')">🎪 Cartoon</div>
+                        </div>
+                    </div>
+                    <div class="video-grid">
+                        <div class="video-card selected">
+                            <div class="video-card-thumb">🎬</div>
+                            <div class="video-card-info">
+                                <div class="video-card-name">Wan2.1</div>
+                                <div class="video-card-desc">Alta qualidade, 1080p</div>
+                            </div>
+                        </div>
+                        <div class="video-card">
+                            <div class="video-card-thumb">🎥</div>
+                            <div class="video-card-info">
+                                <div class="video-card-name">CogVideoX</div>
+                                <div class="video-card-desc">Rápido, 720p</div>
+                            </div>
+                        </div>
+                        <div class="video-card">
+                            <div class="video-card-thumb">🎞️</div>
+                            <div class="video-card-info">
+                                <div class="video-card-name">LTX-Video</div>
+                                <div class="video-card-desc"> leve, 512p</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="video-preview" id="video-output">
+                        <div class="video-placeholder">🎬</div>
+                        <div style="color:var(--text3);font-size:14px">O vídeo será gerado aqui</div>
+                        <div style="color:var(--text3);font-size:12px;margin-top:8px">Modelos: Wan2.1, CogVideoX, LTX-Video</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IMAGE GENERATOR -->
+            <div class="panel" id="panel-image" style="display:none">
+                <div class="header">
+                    <div class="header-title">🖼️ Gerador de Imagens</div>
+                    <button class="header-btn primary" onclick="generateImage()">⚡ Gerar Imagem</button>
+                </div>
+                <div class="gen-panel">
+                    <div class="gen-input-group">
+                        <div class="gen-label">Descrição da Imagem</div>
+                        <textarea class="gen-textarea" id="image-prompt" placeholder="Descreva a imagem desejada... (ex: Paisagem de Luanda ao pôr do sol, estilo fotografia profissional)"></textarea>
+                        <div class="gen-options" style="margin-top:12px">
+                            <div class="gen-chip active" onclick="setImgStyle(this,'photo')">📷 Fotografia</div>
+                            <div class="gen-chip" onclick="setImgStyle(this,'art')">🎨 Arte</div>
+                            <div class="gen-chip" onclick="setImgStyle(this,'3d')">🧊 3D</div>
+                            <div class="gen-chip" onclick="setImgStyle(this,'anime')">🎌 Anime</div>
+                            <div class="gen-chip" onclick="setImgStyle(this,'logo')">✨ Logo</div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px" id="image-output">
+                        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);height:200px;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.3">🖼️</div>
+                        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);height:200px;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.3">🖼️</div>
+                        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);height:200px;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.3">🖼️</div>
+                        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);height:200px;display:flex;align-items:center;justify-content:center;font-size:48px;opacity:0.3">🖼️</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAT -->
+            <div class="panel" id="panel-chat" style="display:none">
+                <div class="header">
+                    <div class="header-title">💬 Chat IA</div>
+                    <button class="header-btn" onclick="clearChat()">Limpar</button>
+                </div>
+                <div class="chat-panel">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-message">
+                            <div class="chat-avatar ai">🤖</div>
+                            <div class="chat-content">
+                                <div class="chat-name">AI Assistant</div>
+                                <div class="chat-text">Olá! Sou o assistente AI. Posso ajudar com código, texto, sites, vídeos e mais. Como posso ajudar?</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" class="chat-input" id="chat-input" placeholder="Escreva a sua mensagem..." onkeypress="if(event.key==='Enter')sendChat()">
+                        <button class="chat-send" onclick="sendChat()">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROMPTS LIBRARY -->
+            <div class="panel" id="panel-prompts" style="display:none">
+                <div class="header">
+                    <div class="header-title">📚 Biblioteca de Prompts</div>
+                </div>
+                <div class="prompts-grid">
+                    <div class="prompt-card" onclick="usePrompt('Cria uma landing page profissional para um restaurante angolano com menu, preços, localização e botão de reserva')">
+                        <div class="prompt-card-cat">🌐 Website</div>
+                        <div class="prompt-card-title">Landing Page Restaurante</div>
+                        <div class="prompt-card-desc">Gera uma landing page completa para restaurante com design moderno</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Escreve um artigo de blog sobre as melhores praias de Luanda, com 1000 palavras, SEO friendly')">
+                        <div class="prompt-card-cat">📝 Texto</div>
+                        <div class="prompt-card-title">Artigo Blog Praias</div>
+                        <div class="prompt-card-desc">Artigo SEO sobre praias de Luanda</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Cria uma aplicação React completa de e-commerce com carrinho, pagamento e painel admin')">
+                        <div class="prompt-card-cat">💻 Código</div>
+                        <div class="prompt-card-title">E-commerce React</div>
+                        <div class="prompt-card-desc">App React completa de e-commerce</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Gera um vídeo de 5 segundos de um carro a conduzir pelas ruas de Luanda ao pôr do sol')">
+                        <div class="prompt-card-cat">🎬 Vídeo</div>
+                        <div class="prompt-card-title">Vídeo Luanda Sunset</div>
+                        <div class="prompt-card-desc">Vídeo cinematográfico de Luanda</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Cria uma API REST completa em Node.js com Express, MongoDB, autenticação JWT e documentação Swagger')">
+                        <div class="prompt-card-cat">💻 Código</div>
+                        <div class="prompt-card-title">API REST Node.js</div>
+                        <div class="prompt-card-desc">API completa com auth e docs</div>
+                    </div>
+                    <div class="prompt-card" onclick="usePrompt('Escreve um email marketing profissional para lançamento de um novo produto tech em Angola')">
+                        <div class="prompt-card-cat">📝 Texto</div>
+                        <div class="prompt-card-title">Email Marketing</div>
+                        <div class="prompt-card-desc">Email de lançamento de produto</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CODE EDITOR -->
+            <div class="panel" id="panel-editor" style="display:none">
+                <div class="header">
+                    <div class="header-title">✏️ Editor de Código</div>
+                    <select class="header-btn" style="background:var(--bg3)">
+                        <option>JavaScript</option>
+                        <option>Python</option>
+                        <option>HTML</option>
+                        <option>CSS</option>
+                        <option>TypeScript</option>
+                    </select>
+                    <button class="header-btn" onclick="runCode()">▶️ Executar</button>
+                    <button class="header-btn primary" onclick="aiComplete()">⚡ AI Complete</button>
+                </div>
+                <div class="code-panel">
+                    <div class="code-header">
+                        <div class="code-tab active">main.js</div>
+                        <div class="code-tab">index.html</div>
+                        <div class="code-tab">style.css</div>
+                    </div>
+                    <div class="code-editor">
+                        <textarea id="code-editor" placeholder="// Escreva o seu código aqui...
+
+function hello() {
+    console.log('Olá Mundo!');
+}
+
+hello();">// Escreva o seu código aqui...
+
+function hello() {
+    console.log('Olá Mundo!');
+}
+
+hello();</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div class="panel" id="panel-settings" style="display:none">
+                <div class="header">
+                    <div class="header-title">⚙️ Configurações</div>
+                </div>
+                <div class="settings-panel">
+                    <div class="settings-section">
+                        <div class="settings-title">🔑 API Keys</div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-row-label">HuggingFace Token</div>
+                                <div class="settings-row-desc">Para modelos de IA (gratuito)</div>
+                            </div>
+                            <input type="password" class="settings-input" placeholder="hf_..." id="hf-token">
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-row-label">Replicate Token</div>
+                                <div class="settings-row-desc">Para geração de vídeo</div>
+                            </div>
+                            <input type="password" class="settings-input" placeholder="r8_..." id="replicate-token">
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="settings-title">🤖 Modelos</div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-row-label">Modelo de Texto</div>
+                                <div class="settings-row-desc">Modelo padrão para geração de texto</div>
+                            </div>
+                            <select class="settings-input">
+                                <option>GPT-2</option>
+                                <option>Mistral 7B</option>
+                                <option>LLaMA 3</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-row-label">Modelo de Código</div>
+                                <div class="settings-row-desc">Modelo para geração de código</div>
+                            </div>
+                            <select class="settings-input">
+                                <option>CodeLlama</option>
+                                <option>StarCoder</option>
+                                <option>DeepSeek Coder</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <div class="settings-title">🌐 APIs Gratuitas</div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-row-label">HuggingFace Inference</div>
+                                <div class="settings-row-desc">API gratuita para modelos open source</div>
+                            </div>
+                            <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+                        </div>
+                        <div class="settings-row">
+                            <div>
+                                <div class="settings-row-label">Web Browsing</div>
+                                <div class="settings-row-desc">Pesquisa na web para contexto</div>
+                            </div>
+                            <div class="settings-toggle on" onclick="this.classList.toggle('on')"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ==================== STATE ====================
+    const STATE = {
+        currentPanel: 'text',
+        genType: 'text',
+        videoStyle: 'cinematic',
+        imageStyle: 'photo',
+        chatHistory: [],
+        isGenerating: false,
+    };
+
+    // ==================== NAVIGATION ====================
+    function showPanel(id) {
+        document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
+        document.getElementById('panel-' + id).style.display = 'flex';
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        STATE.currentPanel = id;
+    }
+
+    // ==================== TEXT GENERATION ====================
+    function setGenType(el, type) {
+        document.querySelectorAll('#panel-text .gen-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        STATE.genType = type;
+    }
+
+    async function generateText() {
+        const prompt = document.getElementById('text-prompt').value;
+        if (!prompt) { showToast('Escreva um prompt primeiro', 'error'); return; }
+        
+        const output = document.getElementById('text-output');
+        output.innerHTML = '<div class="loading"><div class="spinner"></div> A gerar...</div>';
+        
+        // Generate based on type
+        const codeTemplates = {
+            html: generateHTML,
+            js: generateJS,
+            python: generatePython,
+            sql: generateSQL,
+            react: generateReact,
+            blog: generateBlog,
+            code: generateCode,
+            text: generateTextContent,
+        };
+        
+        const generator = codeTemplates[STATE.genType] || generateTextContent;
+        const result = generator(prompt);
+        
+        // Simulate streaming
+        await simulateStreaming(output, result);
+    }
+
+    function generateHTML(prompt) {
+        return `<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${prompt}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; }
+        .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 20px; background: linear-gradient(135deg, #1a1a2e, #16213e); }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; background: linear-gradient(135deg, #6366f1, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: #a0a0b8; max-width: 600px; margin: 0 auto 30px; }
+        .btn { padding: 14px 32px; background: #6366f1; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: transform 0.2s; }
+        .btn:hover { transform: scale(1.05); }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
+        .feature { background: #12121a; border: 1px solid #2a2a3a; border-radius: 12px; padding: 32px; transition: transform 0.2s; }
+        .feature:hover { transform: translateY(-4px); }
+        .feature-icon { font-size: 2.5rem; margin-bottom: 16px; }
+        .feature h3 { font-size: 1.3rem; margin-bottom: 8px; }
+        .feature p { color: #a0a0b8; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div>
+            <h1>${prompt}</h1>
+            <p>Descrição do projeto gerado automaticamente pela AI Workspace</p>
+            <button class="btn">Saber Mais</button>
+        </div>
+    </section>
+    <section class="features">
+        <div class="feature">
+            <div class="feature-icon">⚡</div>
+            <h3>Rápido</h3>
+            <p>Performance otimizada para a melhor experiência</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🎨</div>
+            <h3>Design Moderno</h3>
+            <p>Interface elegante e intuitiva</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">📱</div>
+            <h3>Responsivo</h3>
+            <p>Adapta-se a qualquer dispositivo</p>
+        </div>
+    </section>
+</body>
+</html>`;
+    }
+
+    function generateJS(prompt) {
+        return `// ${prompt}
+// Gerado por AI Workspace
+
+class App {
+    constructor() {
+        this.data = [];
+        this.init();
+    }
+
+    init() {
+        console.log('App inicializada');
+        this.setupEventListeners();
+        this.loadData();
+    }
+
+    setupEventListeners() {
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM carregado');
+        });
+    }
+
+    async loadData() {
+        try {
+            const response = await fetch('/api/data');
+            this.data = await response.json();
+            this.render();
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
+        }
+    }
+
+    render() {
+        const container = document.getElementById('app');
+        container.innerHTML = this.data.map(item => \`
+            <div class="item">
+                <h3>\${item.title}</h3>
+                <p>\${item.description}</p>
+            </div>
+        \`).join('');
+    }
+
+    filter(query) {
+        return this.data.filter(item => 
+            item.title.toLowerCase().includes(query.toLowerCase())
+        );
+    }
+}
+
+const app = new App();
+export default app;`;
+    }
+
+    function generatePython(prompt) {
+        return `# ${prompt}
+# Gerado por AI Workspace
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional
+import uvicorn
+
+app = FastAPI(title="API gerada por AI")
+
+class Item(BaseModel):
+    id: Optional[int] = None
+    title: str
+    description: str
+    active: bool = True
+
+# Simulated database
+items_db: List[Item] = []
+
+@app.get("/")
+async def root():
+    return {"message": "API funcionando!"}
+
+@app.get("/items", response_model=List[Item])
+async def get_items():
+    return items_db
+
+@app.post("/items", response_model=Item)
+async def create_item(item: Item):
+    item.id = len(items_db) + 1
+    items_db.append(item)
+    return item
+
+@app.put("/items/{item_id}", response_model=Item)
+async def update_item(item_id: int, item: Item):
+    for i, existing in enumerate(items_db):
+        if existing.id == item_id:
+            items_db[i] = item
+            return item
+    raise HTTPException(status_code=404, detail="Item não encontrado")
+
+@app.delete("/items/{item_id}")
+async def delete_item(item_id: int):
+    global items_db
+    items_db = [item for item in items_db if item.id != item_id]
+    return {"message": "Item removido"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)`;
+    }
+
+    function generateSQL(prompt) {
+        return `-- ${prompt}
+-- Gerado por AI Workspace
+
+-- Criar tabelas
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    stock INTEGER DEFAULT 0,
+    category_id INTEGER REFERENCES categories(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    total DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id),
+    product_id INTEGER REFERENCES products(id),
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10, 2) NOT NULL
+);
+
+-- Índices
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_orders_user ON orders(user_id);
+
+-- Views úteis
+CREATE VIEW order_summary AS
+SELECT 
+    o.id as order_id,
+    u.name as customer_name,
+    o.total,
+    o.status,
+    o.created_at
+FROM orders o
+JOIN users u ON o.user_id = u.id;`;
+    }
+
+    function generateReact(prompt) {
+        return `// ${prompt}
+// Gerado por AI Workspace
+
+import React, { useState, useEffect } from 'react';
+
+const App = () => {
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
+
+    useEffect(() => {
+        fetchItems();
+    }, []);
+
+    const fetchItems = async () => {
+        try {
+            const response = await fetch('/api/items');
+            const data = await response.json();
+            setItems(data);
+        } catch (error) {
+            console.error('Erro:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const filteredItems = items.filter(item =>
+        item.name.toLowerCase().includes(search.toLowerCase())
+    );
+
+    if (loading) return <div className="loading">A carregar...</div>;
+
+    return (
+        <div className="app">
+            <header className="header">
+                <h1>Minha App</h1>
+                <input
+                    type="text"
+                    placeholder="Pesquisar..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </header>
+            <main className="content">
+                {filteredItems.map(item => (
+                    <div key={item.id} className="card">
+                        <h3>{item.name}</h3>
+                        <p>{item.description}</p>
+                    </div>
+                ))}
+            </main>
+        </div>
+    );
+};
+
+export default App;`;
+    }
+
+    function generateBlog(prompt) {
+        return `# ${prompt}
+
+## Introdução
+
+Este artigo explora os melhores locais e experiências que Luanda tem para oferecer. Como capital de Angola, Luanda é uma cidade vibrante que combina cultura, história e modernidade.
+
+## Os Melhores Locais
+
+### 1. Ilha de Luanda
+A Ilha de Luanda é uma das principais atrações turísticas da cidade. Com suas praias de águas claras e restaurantes à beira-mar, é o local perfeito para relaxar.
+
+### 2. Fortaleza de São Miguel
+Esta fortaleza do século XVI é um dos monumentos mais importantes de Angola. De lá, você tem uma vista panorâmica impressionante da cidade.
+
+### 3. Marginal de Luanda
+A Marginal é a orla marítima de Luanda, ideal para caminhadas ao entardecer. Os restaurantes e cafés oferecem uma experiência gastronômica única.
+
+## Gastronomia
+
+Luanda oferece uma culinária rica e diversificada. Não deixe de experimentar:
+- **Muamba de galinha** - Prato típico angolano
+- **Calulu** - Ensopado de peixe ou carne
+- **Funge** - Acompanhamento tradicional
+
+## Conclusão
+
+Luanda é uma cidade que merece ser visitada. Com sua mistura única de tradição e modernidade, há algo para todos os gostos.
+
+---
+
+*Artigo gerado por AI Workspace*`;
+    }
+
+    function generateCode(prompt) {
+        return `// ${prompt}
+// Gerado por AI Workspace
+
+function solution(input) {
+    // Processar input
+    const lines = input.split('\\n');
+    const result = [];
+    
+    for (const line of lines) {
+        if (line.trim()) {
+            result.push(processLine(line));
+        }
+    }
+    
+    return result.join('\\n');
+}
+
+function processLine(line) {
+    // Lógica de processamento
+    return line.trim().toUpperCase();
+}
+
+// Testes
+console.log(solution("hello\\nworld")); // "HELLO\\nWORLD"
+console.log(solution("teste 123")); // "TESTE 123"
+
+module.exports = { solution };`;
+    }
+
+    function generateTextContent(prompt) {
+        return `# Resposta sobre: ${prompt}
+
+Baseado na sua solicitação, aqui está uma resposta detalhada:
+
+## Análise
+
+A sua pergunta aborda um tópico interessante que merece uma análise cuidadosa. Vamos explorar os principais pontos:
+
+### Principais Pontos
+
+1. **Contexto**: É importante considerar o contexto atual para uma resposta adequada.
+
+2. **Perspetiva**: Existem diferentes perspetivas sobre este assunto, cada uma com seus méritos.
+
+3. **Aplicação prática**: A aplicação destes conceitos no dia-a-dia pode trazer benefícios reais.
+
+### Recomendações
+
+- Comece com os fundamentos
+- Pratique regularmente
+- Consulte fontes confiáveis
+- Partilhe conhecimento com outros
+
+### Conclusão
+
+Este é um tema em constante evolução. Manter-se atualizado é essencial para aproveitar todas as oportunidades.
+
+---
+*Resposta gerada por AI Workspace*`;
+    }
+
+    async function simulateStreaming(element, text) {
+        element.innerHTML = '';
+        const lines = text.split('\n');
+        
+        for (let i = 0; i < lines.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 20));
+            element.innerHTML += lines[i] + '\n';
+            element.scrollTop = element.scrollHeight;
+        }
+    }
+
+    // ==================== SITE BUILDER ====================
+    async function generateSite() {
+        const prompt = document.getElementById('site-prompt').value;
+        if (!prompt) { showToast('Descreva o site primeiro', 'error'); return; }
+        
+        const code = generateHTML(prompt);
+        document.getElementById('site-code').value = code;
+        updatePreview();
+        showToast('Site gerado com sucesso!', 'success');
+    }
+
+    function updatePreview() {
+        const code = document.getElementById('site-code').value;
+        const frame = document.getElementById('preview-frame');
+        frame.srcdoc = code;
+    }
+
+    function exportSite() {
+        const code = document.getElementById('site-code').value;
+        downloadFile('site.html', code, 'text/html');
+    }
+
+    // ==================== VIDEO GENERATOR ====================
+    function setVideoStyle(el, style) {
+        document.querySelectorAll('#panel-video .gen-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        STATE.videoStyle = style;
+    }
+
+    async function generateVideo() {
+        const prompt = document.getElementById('video-prompt').value;
+        if (!prompt) { showToast('Descreva o vídeo primeiro', 'error'); return; }
+        
+        const output = document.getElementById('video-output');
+        output.innerHTML = `
+            <div class="spinner" style="width:40px;height:40px;border-width:3px"></div>
+            <div style="margin-top:16px;color:var(--text3)">A gerar vídeo...</div>
+            <div style="margin-top:8px;font-size:12px;color:var(--text3)">Modelo: Wan2.1 | Estilo: ${STATE.videoStyle}</div>
+            <div style="margin-top:8px;font-size:11px;color:var(--text3)">Tempo estimado: 30-60 segundos</div>
+        `;
+        
+        // Simulate video generation
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        output.innerHTML = `
+            <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:12px;padding:40px;text-align:center">
+                <div style="font-size:64px;margin-bottom:16px">🎬</div>
+                <div style="font-size:18px;font-weight:600;margin-bottom:8px">Vídeo Gerado!</div>
+                <div style="color:var(--text3);font-size:13px;margin-bottom:16px">${prompt}</div>
+                <div style="display:flex;gap:8px;justify-content:center">
+                    <button class="header-btn" onclick="showToast('Download iniciado','success')">📥 Download</button>
+                    <button class="header-btn" onclick="showToast('A reproduzir...','success')">▶️ Reproduzir</button>
+                </div>
+            </div>
+        `;
+        showToast('Vídeo gerado com sucesso!', 'success');
+    }
+
+    // ==================== IMAGE GENERATOR ====================
+    function setImgStyle(el, style) {
+        document.querySelectorAll('#panel-image .gen-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        STATE.imageStyle = style;
+    }
+
+    async function generateImage() {
+        const prompt = document.getElementById('image-prompt').value;
+        if (!prompt) { showToast('Descreva a imagem primeiro', 'error'); return; }
+        
+        const output = document.getElementById('image-output');
+        output.innerHTML = Array(4).fill(`
+            <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div class="spinner"></div>
+                <div style="margin-top:8px;font-size:11px;color:var(--text3)">A gerar...</div>
+            </div>
+        `).join('');
+        
+        // Simulate image generation
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        output.innerHTML = Array(4).fill(`
+            <div style="background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid var(--border);border-radius:var(--radius);height:200px;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="showToast('Imagem aberta','success')">
+                <div style="text-align:center">
+                    <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+                    <div style="font-size:11px;color:var(--text3)">Clique para ver</div>
+                </div>
+            </div>
+        `).join('');
+        showToast('Imagens geradas!', 'success');
+    }
+
+    // ==================== CHAT ====================
+    async function sendChat() {
+        const input = document.getElementById('chat-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+        
+        // Add user message
+        addChatMessage(msg, 'user');
+        input.value = '';
+        
+        // Generate AI response
+        const response = generateChatResponse(msg);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        addChatMessage(response, 'ai');
+    }
+
+    function addChatMessage(text, sender) {
+        const container = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = 'chat-message';
+        div.innerHTML = `
+            <div class="chat-avatar ${sender}">${sender === 'user' ? '👤' : '🤖'}</div>
+            <div class="chat-content">
+                <div class="chat-name">${sender === 'user' ? 'Você' : 'AI Assistant'}</div>
+                <div class="chat-text">${text}</div>
+            </div>
+        `;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function generateChatResponse(msg) {
+        const lower = msg.toLowerCase();
+        if (lower.includes('código') || lower.includes('code')) {
+            return 'Posso ajudar com código! Use o painel "Texto & Código" para gerar código em várias linguagens. Que tipo de código precisa?';
+        }
+        if (lower.includes('site') || lower.includes('website')) {
+            return 'Para criar um site, use o painel "Criador de Sites". Basta descrever o que quer e o site será gerado automaticamente!';
+        }
+        if (lower.includes('vídeo') || lower.includes('video')) {
+            return 'O gerador de vídeo está disponível no painel "Gerador de Vídeo". Suporta estilos cinematográfico, anime, 3D e mais!';
+        }
+        return 'Entendi! Posso ajudar com texto, código, sites, vídeos e imagens. Use os painéis laterais para acessar cada ferramenta. Como posso ajudar especificamente?';
+    }
+
+    function clearChat() {
+        document.getElementById('chat-messages').innerHTML = `
+            <div class="chat-message">
+                <div class="chat-avatar ai">🤖</div>
+                <div class="chat-content">
+                    <div class="chat-name">AI Assistant</div>
+                    <div class="chat-text">Chat limpo! Como posso ajudar?</div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ==================== PROMPTS ====================
+    function usePrompt(text) {
+        document.getElementById('text-prompt').value = text;
+        showPanel('text');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelector('[onclick="showPanel(\'text\')"]').classList.add('active');
+    }
+
+    // ==================== UTILITIES ====================
+    function clearOutput(id) {
+        document.getElementById(id).innerHTML = '<span style="color:var(--text3)">O resultado aparecerá aqui...</span>';
+    }
+
+    function exportContent(id) {
+        const content = document.getElementById(id).innerText;
+        downloadFile('output.txt', content, 'text/plain');
+    }
+
+    function downloadFile(name, content, type) {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function showToast(msg, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function runCode() {
+        const code = document.getElementById('code-editor').value;
+        try {
+            eval(code);
+            showToast('Código executado!', 'success');
+        } catch (e) {
+            showToast('Erro: ' + e.message, 'error');
+        }
+    }
+
+    function aiComplete() {
+        const editor = document.getElementById('code-editor');
+        const code = editor.value;
+        editor.value = code + '\n\n// AI sugestão:\n// Adicione mais funcionalidades aqui...';
+        showToast('Código completado!', 'success');
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('AI Workspace carregado!');
+    });
+    </script>
+</body>
+</html>
