@@ -97,12 +97,12 @@
     </div>
     
     <div class="nav">
-        <button class="active" onclick="show('text')">Text & Code</button>
-        <button onclick="show('site')">Site Builder</button>
-        <button onclick="show('video')">Video</button>
-        <button onclick="show('image')">Images</button>
-        <button onclick="show('chat')">Chat</button>
-        <button onclick="show('editor')">Code Editor</button>
+        <button class="active" onclick="show('text',this)">Text & Code</button>
+        <button onclick="show('site',this)">Site Builder</button>
+        <button onclick="show('video',this)">Video</button>
+        <button onclick="show('image',this)">Images</button>
+        <button onclick="show('chat',this)">Chat</button>
+        <button onclick="show('editor',this)">Code Editor</button>
     </div>
 
     <div class="container">
@@ -224,11 +224,11 @@ hello();</textarea>
     <script>
     var type = 'text';
     
-    function show(id) {
+    function show(id, btn) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        if (btn) btn.classList.add('active');
     }
     
     function setType(el, t) {
@@ -239,7 +239,7 @@ hello();</textarea>
     
     function gerar() {
         var prompt = document.getElementById('prompt').value;
-        if (!prompt) { alert('Escreva algo!'); return; }
+        if (!prompt) { alert('Escreva algo na caixa de texto!'); return; }
         
         var templates = {
             text: '# ' + prompt + '\n\nResposta detalhada sobre o tópico solicitado...\n\n## Pontos principais\n\n1. Análise completa\n2. Exemplos práticos\n3. Recomendações',
@@ -251,7 +251,8 @@ hello();</textarea>
             blog: '# ' + prompt + '\n\n## Introdução\n\nEste artigo explora...\n\n## Conteúdo\n\nDesenvolvimento do tema...\n\n## Conclusão\n\nResumo dos pontos principais.'
         };
         
-        document.getElementById('output').innerText = templates[type] || templates.text;
+        var result = templates[type] || templates.text;
+        document.getElementById('output').innerText = result;
     }
     
     function limpar() {
