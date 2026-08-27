@@ -237,9 +237,11 @@ hello();</textarea>
         type = t;
     }
     
+    window.onerror = function(m) { var o=document.getElementById('output'); if(o) o.innerText='ERRO JS: '+m; };
     function gerar() {
+        try {
         var prompt = document.getElementById('prompt').value;
-        if (!prompt) { alert('Escreva algo na caixa de texto!'); return; }
+        if (!prompt || !prompt.trim()) { document.getElementById('output').innerText='⚠️ Escreva algo na caixa acima primeiro!'; return; }
         
         var templates = {
             text: '# ' + prompt + '\n\nResposta detalhada sobre o tópico solicitado...\n\n## Pontos principais\n\n1. Análise completa\n2. Exemplos práticos\n3. Recomendações',
@@ -253,6 +255,7 @@ hello();</textarea>
         
         var result = templates[type] || templates.text;
         document.getElementById('output').innerText = result;
+        } catch(e){ document.getElementById('output').innerText='ERRO: '+e.message; }
     }
     
     function limpar() {
@@ -294,9 +297,10 @@ hello();</textarea>
     }
     
     function sendChat() {
+        try {
         var input = document.getElementById('chat-input');
         var msg = input.value.trim();
-        if (!msg) return;
+        if (!msg || !msg.trim()) { return; }
         
         var box = document.getElementById('chat-box');
         box.innerHTML += '<div class="chat-msg"><div class="name">Você</div><div class="text">' + msg + '</div></div>';
@@ -310,6 +314,7 @@ hello();</textarea>
             box.innerHTML += '<div class="chat-msg"><div class="name">AI</div><div class="text">' + resp + '</div></div>';
             box.scrollTop = box.scrollHeight;
         }, 500);
+        } catch(e){ alert('Erro chat: '+e.message); }
     }
     
     function executar() {
