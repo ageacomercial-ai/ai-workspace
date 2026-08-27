@@ -26,8 +26,8 @@
         .app { display: flex; height: 100vh; }
         .sidebar { width: 260px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
         .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .panel { display: none; flex-direction: column; height: 100%; }
-        .panel.active, .panel:first-child { display: flex; }
+        .panel { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .panel.active { display: flex !important; }
         
         /* ========== SIDEBAR ========== */
         .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
@@ -253,7 +253,7 @@
         <!-- MAIN -->
         <div class="main">
             <!-- TEXT GENERATOR -->
-            <div class="panel" id="panel-text">
+            <div class="panel active" id="panel-text" style="display:flex">
                 <div class="header">
                     <div class="header-title">📝 Gerador de Texto & Código</div>
                     <select id="model-select" class="header-btn" style="background:var(--bg3)">
@@ -652,13 +652,13 @@ hello();</textarea>
     // ==================== NAVIGATION ====================
     function showPanel(id) {
         document.querySelectorAll('.panel').forEach(p => {
-            p.style.display = 'none';
             p.classList.remove('active');
+            p.style.display = 'none';
         });
         const panel = document.getElementById('panel-' + id);
         if (panel) {
-            panel.style.display = 'flex';
             panel.classList.add('active');
+            panel.style.display = 'flex';
         }
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         if (event && event.currentTarget) {
@@ -666,15 +666,6 @@ hello();</textarea>
         }
         STATE.currentPanel = id;
     }
-
-    // Show first panel on load
-    document.addEventListener('DOMContentLoaded', () => {
-        const firstPanel = document.querySelector('.panel');
-        if (firstPanel) {
-            firstPanel.style.display = 'flex';
-            firstPanel.classList.add('active');
-        }
-    });
 
     // ==================== TEXT GENERATION ====================
     function setGenType(el, type) {
